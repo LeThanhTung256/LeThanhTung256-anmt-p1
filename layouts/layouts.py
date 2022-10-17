@@ -1,3 +1,4 @@
+# Chứa các layout cho ứng dụng
 import PySimpleGUI as pg
 
 pg.theme("DarkAmber")
