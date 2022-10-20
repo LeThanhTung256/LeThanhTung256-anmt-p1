@@ -18,7 +18,15 @@ def comparePass(password, passHash):
 # Đăng nhập
 def login(email, password):
     users = []
-    if os.stat(constants.USER_DB_FILE).st_size == 0:
+
+    # Nếu chưa có DB, tạo DB và return err "Email has not been used"    
+    if not os.path.exists(constants.DATABASE_FORDER):
+        os.makedirs(constants.DATABASE_FORDER)
+        return "", "Email has not been used"
+
+    if not os.path.isfile(constants.USER_DB_FILE):
+        f_users = open(constants.USER_DB_FILE, "w")
+        f_users.close()
         return "", "Email has not been used"
 
     # Kiểm tra nếu trong DB chưa có user thì skip. Lúc đó users = [], còn k thì load data vào biến users
@@ -47,6 +55,13 @@ def register(registerForm):
 
     users = []
     # Kiểm tra nếu trong DB chưa có user thì bỏ qua, tức là users = [], nếu có data thì load data vào biến users
+    if not os.path.exists(constants.DATABASE_FORDER):
+        os.makedirs(constants.DATABASE_FORDER)
+    
+    if not os.path.isfile(constants.USER_DB_FILE):
+        f_users = open(constants.USER_DB_FILE, "w")
+        f_users.close()
+
     if not os.stat(constants.USER_DB_FILE).st_size == 0:
         with open(constants.USER_DB_FILE, "r") as file:
             users = json.load(file)
