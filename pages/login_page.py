@@ -5,6 +5,7 @@ import PySimpleGUI as pg
 import service.auth as auth
 import layouts.layouts as layouts
 import pages.register_page as register_page
+import pages.home_page as home_page
 
 # Hàm đăng nhập (mức front-end)
 def login(loginForm):
@@ -22,11 +23,11 @@ def login(loginForm):
 # Tạo cửa sổ login và xử lý các sự kiện
 def login_page():
   # Tạo cửa sổ loginS
-  window = pg.Window("Sign in", layouts.loginLayout).Finalize()
+  login_window = pg.Window("Sign in", layouts.loginLayout).Finalize()
 
   #Xử lý sự kiện
   while True:
-    event, values = window.read()
+    event, values = login_window.read()
     if event == "Exit" or event == pg.WIN_CLOSED:
       break
 
@@ -40,11 +41,13 @@ def login_page():
       
       # Nếu thành công thì chuyển đến trang home page
       else:
+        login_window.hide()
         pg.PopupOK("User " + result + " login successfully", font="Any 15 bold", background_color="white", text_color="green")
+        home_page.create_home_page(result)
         break
 
     if event == "Register":
       register_page.register_page()
       break
 
-  window.close()
+  login_window.close()

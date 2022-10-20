@@ -9,8 +9,9 @@ import constants
 
 # Hàm mã hoá private key bằng password của người dùng
 def encryptPrivateKey(private_key, password):
+  hashedPass, salt = password.split(":")
   # Lấy 16 byte đầu password đã hash làm key
-  key = password[0:16]
+  key = bytes.fromhex(hashedPass)[0:16]
 
   # Tạo một AES mode EAX với key vừa tạo
   cipher = AES.new(key, AES.MODE_EAX)
@@ -22,8 +23,9 @@ def encryptPrivateKey(private_key, password):
 
 # Hàm giải mã private key
 def decryptPrivateKey(private_key, password):
+  hashedPass, salt = password.split(":")
   # Lấy 16 byte đầu password đã hash làm key
-  key = password[0:16]
+  key = bytes.fromhex(hashedPass)[0:16]
 
   # Tách private_key thành các thành phần theo số bytes
   bytes_private_key = bytes.fromhex(private_key)
@@ -59,6 +61,10 @@ def generate_key(user, password):
 
   keys = []
   # Kiểm tra trong DB có keys chưa, nếu có thì load vào biến keys, nếu không thì bỏ qua (keys = [])
+  if not os.path.isfile(constants.USER_KEY_DB_FILE):
+    f_keys = open(constants.USER_KEY_DB_FILE, "w")
+    f_keys.close()
+
   if not os.stat(constants.USER_KEY_DB_FILE).st_size == 0:
     with open(constants.USER_KEY_DB_FILE, "r") as file:
       keys = json.load(file)

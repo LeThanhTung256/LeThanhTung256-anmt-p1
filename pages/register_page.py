@@ -6,6 +6,7 @@ import PySimpleGUI as pg
 import service.auth as auth
 import layouts.layouts as layouts
 import pages.login_page as login_page
+import pages.home_page as home_page
 
 # Hàm đăng ký (mức front-end)
 def register(registerForm):
@@ -34,11 +35,11 @@ def register(registerForm):
 # Tạo cửa sổ đăng ký và xử lý các event
 def register_page():
   # Tạo cửa sổ đăng ký
-  window = pg.Window("Register", layouts.signUpLayout).Finalize()
+  register_window = pg.Window("Register", layouts.signUpLayout).Finalize()
 
   # Xử lý các event
   while True:
-    event, values = window.read()
+    event, values = register_window.read()
     if event == "Exit" or event == pg.WIN_CLOSED:
       break
 
@@ -50,14 +51,16 @@ def register_page():
         pg.popup_error("Opps!", error, font=('Any 15'))
       else:
         # Nếu thành công chuyển đến trang home
+        register_window.hide()
         pg.PopupOK("User " + result + " register successfully", font="Any 15 bold", background_color="white", text_color="green")
+        home_page.create_home_page(result)
         break
 
     if event == "Login":
       login_page.login_page()
       break
   
-  window.close()
+  register_window.close()
 
 
 
