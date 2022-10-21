@@ -48,8 +48,37 @@ changePassLayout = [
 ]
 
 encryptFileLayout = [
-  [pg.Text("Select a file:"), pg.InputText(key="_OUT_"), pg.FileBrowse(key="_IN_")],
+  [pg.Text("Select a file")],
+  [pg.Input(size=(25, 0), disabled=True), pg.FileBrowse(key="_FILE_IN_")],
+  [pg.Text("Must select a file",size=(30, 0), key="_ERR_FILE_", visible=False)],
   [],
   [pg.Text("Select receiver")],
+  [pg.Combo([], key="_RECEIVER_", size=(30, 0))],
+  [pg.Text("Must select a receiver", size=(30, 0), key='_ERR_REC_', visible=False)],
+  [],
+  [pg.Text("Select the location for encrypted file")],
+  [pg.Input(change_submits=True, disabled=True, size=(25,0)), pg.FolderBrowse(key="_LOCATION_")],
+  [pg.Text("Must select encrypt file's location" ,size=(30, 0), key='_ERR_LOC_', visible=False)],
+  [],
+  [pg.Text("Encrypted file's name", size=(20, 0)), pg.InputText(size=(12, 0), key='_FILE_NAME_')],
+  [pg.Text("Must enter encrypted file's name", size=(30, 0), key='_ERR_NAME_', visible=False)],
+  [pg.Text("Note: if this name don't have file extension, system will use .txt as defaul", size=(30, 0))],
+  [],
   [pg.Button("Encrypt"), pg.Button("Exit")]
+]
+
+decryptFileLayout = [
+  [pg.Text("Select a file")],
+  [pg.Input(size=(25, 0), disabled=True), pg.FileBrowse(key="_FILE_IN_")],
+  [pg.Text("Must select a file",size=(30, 0), key="_ERR_FILE_", visible=False)],
+  [],
+  [pg.Text("Select the location for encrypted file")],
+  [pg.Input(change_submits=True, disabled=True, size=(25,0)), pg.FolderBrowse(key="_LOCATION_")],
+  [pg.Text("Must select encrypt file's location" ,size=(30, 0), key='_ERR_LOC_', visible=False)],
+  [],
+  [pg.Text("Encrypted file's name", size=(20, 0)), pg.InputText(size=(12, 0), key='_FILE_NAME_')],
+  [pg.Text("Must enter encrypted file's name", size=(30, 0), key='_ERR_NAME_', visible=False)],
+  [pg.Text("Note: if this name don't have file extension, system will use .txt as defaul", size=(30, 0))],
+  [],
+  [pg.Button("Decrypt"), pg.Button("Exit")]
 ]

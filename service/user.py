@@ -8,6 +8,7 @@ import service.auth as authService
 import service.crypto as cryptoService
 import constants
 
+# Lấy thông tin người dùng bằng email, nếu tìm được return user Info, nếu không return err
 def getUserByEmail(email):
   with open(constants.USER_DB_FILE, "r") as file:
     userList = json.load(file)
@@ -19,6 +20,7 @@ def getUserByEmail(email):
     
   return "", "Can't find user"
 
+# Update thông tin người dùng
 def updateUserInfo(userInfo):
   with open(constants.USER_DB_FILE, "r") as file:
     userList = json.load(file)
@@ -38,6 +40,7 @@ def updateUserInfo(userInfo):
 
   return None, "Update unsuccessfull"
 
+# Change password
 def changePassword(form, user_email):
   oldPassHash = None
   newPassHash = None
@@ -84,3 +87,19 @@ def changePassword(form, user_email):
     file.close()
 
   return "Update successfull", None
+
+# Lấy thông tin người dùng (Chắc chắn lấy được)
+def getUserInfo(email):
+  with open(constants.USER_DB_FILE, 'r') as file:
+    userList = json.load(file)
+    file.close()
+  
+  return [user for user in userList if user["email"] == email][0]
+
+# Lấy cặp khoá của người dùng bằng email
+def getUserKeys(email):
+  with open(constants.USER_KEY_DB_FILE, 'r') as file:
+    userList = json.load(file)
+    file.close()
+  
+  return [userKeys for userKeys in userList if userKeys["email"] == email][0]

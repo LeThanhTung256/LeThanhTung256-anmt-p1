@@ -1,8 +1,10 @@
 import PySimpleGUI as pg
+import json
 
 import service.user as userService
-
-from layouts.layouts import homeLayout, userSettingsLayout, changePassLayout, encryptFileLayout
+import service.crypto as cryptoService
+import constants
+from layouts.layouts import homeLayout, userSettingsLayout, changePassLayout, encryptFileLayout, decryptFileLayout
 
 def create_home_page(user):
   home_window = pg.Window("HomePage", homeLayout).Finalize()
@@ -82,19 +84,118 @@ def create_home_page(user):
     home_window.un_hide()
     return
 
-  def open_encrypt_window(user):
+  def open_encrypt_window():
     home_window.hide()
     encrypt_window = pg.Window("Encrypt file", encryptFileLayout).Finalize()
+    with open(constants.USER_DB_FILE, "r") as file:
+      userList = json.load(file)
+      file.close()
+    
+    users = []
+    for user in userList:
+      users.append(user["email"])
+    encrypt_window["_RECEIVER_"].update(values = users)
 
     while True:
       event, values = encrypt_window.read()
       if event == pg.WIN_CLOSED or event=="Exit":
         break
       if event == "Encrypt":
-        print(values["_IN_"])
-    
+        inputFile = values["_FILE_IN_"]
+        receiver = values["_RECEIVER_"]
+        location = values["_LOCATION_"]
+        filename = values["_FILE_NAME_"]
+
+        flat = True
+        if inputFile == "":
+          encrypt_window["_ERR_FILE_"].update(visible=True)
+          flat = False
+        else:
+          encrypt_window["_ERR_FILE_"].update(visible=False)
+
+        if receiver == "":
+          encrypt_window["_ERR_REC_"].update(visible=True)
+          flat = False
+        else:
+          encrypt_window["_ERR_REC_"].update(visible=False)
+
+        if location == "":
+          encrypt_window["_ERR_LOC_"].update(visible=True)
+          flat = False
+        else:
+          encrypt_window["_ERR_LOC_"].update(visible=False)
+
+        if filename == "":
+          encrypt_window["_ERR_NAME_"].update(visible=True)
+          flat = False
+        else:
+          encrypt_window["_ERR_NAME_"].update(visible=False)
+
+        if flat == True:
+          form = {
+            "inputFile": inputFile,
+            "receiver": receiver,
+            "location": location,
+            "filename": filename,
+          }
+
+          res, err = cryptoService.encryptFile(form)
+          pg.popup_ok(res)
+          break
+
     encrypt_window.close()
     home_window.un_hide()
+    return
+
+  def open_decrypt_window(user):
+    home_window.hide()
+    decrypt_window = pg.Window("decrypt file", decryptFileLayout).Finalize()
+
+    while True:
+      event, values = decrypt_window.read()
+      if event == pg.WIN_CLOSED or event=="Exit":
+        break
+      if event == "Decrypt":
+        inputFile = values["_FILE_IN_"]
+        location = values["_LOCATION_"]
+        filename = values["_FILE_NAME_"]
+
+        flat = True
+        if inputFile == "":
+          decrypt_window["_ERR_FILE_"].update(visible=True)
+          flat = False
+        else:
+          decrypt_window["_ERR_FILE_"].update(visible=False)
+
+        if location == "":
+          decrypt_window["_ERR_LOC_"].update(visible=True)
+          flat = False
+        else:
+          decrypt_window["_ERR_LOC_"].update(visible=False)
+
+        if filename == "":
+          decrypt_window["_ERR_NAME_"].update(visible=True)
+          flat = False
+        else:
+          decrypt_window["_ERR_NAME_"].update(visible=False)
+
+        if flat == True:
+          form = {
+            "inputFile": inputFile,
+            "location": location,
+            "filename": filename,
+          }
+
+          res, err = cryptoService.decryptFile(form, user)
+          if err == None:
+            pg.popup_ok(res)
+            break
+          else:
+            pg.popup_error(err)
+
+    decrypt_window.close()
+    home_window.un_hide()
+    return
 
   while True:
     event, values = home_window.read()
@@ -108,6 +209,9 @@ def create_home_page(user):
       open_change_password_window(user)
     
     if event == "Encrypt file":
-      open_encrypt_window(user)
+      open_encrypt_window()
+
+    if event == "Decrypt file":
+      open_decrypt_window(user)
     
 
