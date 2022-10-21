@@ -1,10 +1,13 @@
 # Chứa các hàm xử lý về bảo mật như mã hoá/ giải mã
 
+from fileinput import filename
 import os
 from Crypto.PublicKey import RSA
-from Crypto.Cipher import AES
+from Crypto.Cipher import AES, PKCS1_OAEP
+from Crypto.Random import get_random_bytes
 import json
 
+import service.user as userService
 import constants
 
 # Hàm mã hoá private key bằng password của người dùng
@@ -78,18 +81,105 @@ def generate_key(user, password):
     json.dump(keys, file)
     file.close()
 
+# Hàm mã hoá khoá session bằng RSA |  | input:(bytes: sessionKey, string: email) --> output(bytes: encryptedKey)
+def encryptSessionKey(sessionKey, userEmail):
+  userKeys = userService.getUserKeys(userEmail)
 
+  publicKey = bytes.fromhex(userKeys['public_key'])
+  rsaPublicKey = RSA.importKey(publicKey)
+  rsaPublicKey = PKCS1_OAEP.new(rsaPublicKey)
+  encryptedKey = rsaPublicKey.encrypt(sessionKey)
 
-# mess_byte = message.encode('utf-8')
+  return encryptedKey
 
-# rsa_public_key = RSA.importKey(public_key)
-# rsa_public_key = PKCS1_OAEP.new(rsa_public_key)
-# encrypted_text = rsa_public_key.encrypt(mess_byte)
+# Hàm giải mã khoá session bằng RSA | | input:(bytes: encryptedKey, string: email) --> output(bytes: sessionKey)
+def decryptSessionKey(encryptKey, userEmail):
+  userInfo = userService.getUserInfo(userEmail)
+  userKeys = userService.getUserKeys(userEmail)
 
-# print('your encrypted_text is : {}'.format(encrypted_text))
+  encryptedPrivateKey = userKeys["private_key"]
+  privateKey = decryptPrivateKey(encryptedPrivateKey, userInfo["password"])
+  rsaPrivateKey = RSA.importKey(privateKey)
+  rsaPrivateKey = PKCS1_OAEP.new(rsaPrivateKey)
+  sessionKey = rsaPrivateKey.decrypt(encryptKey)
 
-# rsa_private_key = RSA.importKey(private_key)
-# rsa_private_key = PKCS1_OAEP.new(rsa_private_key)
-# decrypted_text = rsa_private_key.decrypt(encrypted_text)
+  return sessionKey
 
-# print('your decrypted_text is : {}'.format(decrypted_text.decode()))
+# Hàm mã hoá một file bằng thuật toán AES. Ksession sinh nhẫu nhiên, sau đó được mã hoá bằng RSA với key pair của người nhận
+# Đầu vào là một form chứa input file, receiver, location và file name của file kết quả
+def encryptFile(form):
+  # Đọc file đầu vào theo byte
+  inputFile = form["inputFile"]
+  with open(inputFile, 'rb') as file:
+    data = file.read()
+
+  # Đặt file đầu ra
+  outputFile = form["location"] + '/' + form["filename"]
+  fileName = form["filename"].split('.')
+  if len(fileName) == 1:
+    outputFile += ".txt"
+
+  # Tạo key session (16 bytes)
+  sessionKey = get_random_bytes(16)
+  # Tạo mã hoá AES
+  cipher = AES.new(sessionKey, AES.MODE_EAX)
+  # Mã hoá data bằng AES
+  encryptedData, tag = cipher.encrypt_and_digest(data)
+
+  # Mã hoá sessionKey
+  encryptedSessionKey = encryptSessionKey(sessionKey, form["receiver"])
+
+  # Cần lưu sessionKey, nonce, tag, encryptedData vào file output
+  # Tuy nhiên để có thế giải mã được cần phải trích xuất các thành phần ra. Do đó em ngăn cách các phần bằng một chuỗi ký tự đặc trưng là: "18120640-LeThanhTung" + email người nhận:
+  text = ("18120640-LeThanhTung" + form["receiver"]).encode()
+  output = encryptedSessionKey + text + cipher.nonce + text + tag + text + encryptedData
+  
+  # Ghi kết quả vào file output
+  with open(outputFile, "wb") as file:
+    file.write(output)
+    file.close() 
+
+  res, err = "Crypt successfull", None
+  return res, err
+
+# Hàm giải mã một file bằng thuật toán AES
+# Đầu vào là một form chứa input file, location và file name của file kết quả
+def decryptFile(form, userEmail):
+  # Đọc file đầu vào theo byte
+  inputFile = form["inputFile"]
+  with open(inputFile, 'rb') as file:
+    data = file.read()
+
+  # Đặt file đầu ra
+  outputFile = form["location"] + '/' + form["filename"]
+  fileName = form["filename"].split('.')
+  if len(fileName) == 1:
+    outputFile += ".txt"
+
+  # Tách các thành phần trong data
+  text = ("18120640-LeThanhTung" + userEmail).encode()
+  item = data.split(text)
+  if len(item) < 4:
+    return None, "You are not allowed to decrypt this file"
+
+  enyptedSessionKey = item[0]
+  nonce = item[1]
+  tag = item[2]
+  encryptedData = item[3]
+
+  # Giải mã session key
+  sessionKey = decryptSessionKey(enyptedSessionKey, userEmail)
+
+  # Tạo lại AES
+  cipher = AES.new(sessionKey, AES.MODE_EAX, nonce)
+
+  # Giải mã nội dung file
+  decryptedData = cipher.decrypt_and_verify(encryptedData, tag)
+
+  # Ghi nội dung vào file kết quả
+  with open(outputFile, "wb") as file:
+    file.write(decryptedData)
+    file.close()
+
+  res, err = "Decrypt file complete", None
+  return res, err
