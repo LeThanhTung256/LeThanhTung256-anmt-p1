@@ -1,1 +1,34 @@
-[{"email": "admin", "fullname": "admin", "date_of_birth": "25-6-2000", "phone_number": "0822933774", "address": "TP Ho Chi Minh", "password": "5539ea345ebc6a80a9809857fbca6471aa154b106fbe328ceb3c42db83833a67:f4f5bdf1696f426ea55ef751a3890f42"}, {"email": "kaka@gmail.com", "fullname": "Ricardo Dos Santos", "date_of_birth": "", "phone_number": "", "address": "", "password": "bd7bd1ab8ab73a6c0e5001d4b9c7f6f4b6a4029613d63b6e1382b08335bbd4c8:cf00b604605645e1a8278e63700a4978"}]
+[
+  {
+    "email": "admin",
+    "fullname": "admin",
+    "date_of_birth": "25-6-2000",
+    "phone_number": "0822933774",
+    "address": "TP Ho Chi Minh",
+    "password": "5539ea345ebc6a80a9809857fbca6471aa154b106fbe328ceb3c42db83833a67:f4f5bdf1696f426ea55ef751a3890f42"
+  },
+  {
+    "email": "kaka@gmail.com",
+    "fullname": "Ricardo Kaká",
+    "date_of_birth": "",
+    "phone_number": "",
+    "address": "",
+    "password": "bd7bd1ab8ab73a6c0e5001d4b9c7f6f4b6a4029613d63b6e1382b08335bbd4c8:cf00b604605645e1a8278e63700a4978"
+  },
+  {
+    "email": "leo_messi@gmail.com",
+    "fullname": "Leo Messi",
+    "date_of_birth": "24/06/1987",
+    "phone_number": "",
+    "address": "Paris, Franch",
+    "password": "60992a2065db1fce909611aac1584345c27c38f1d73af84faa8b4644a43f4fdd:2a1a80fa6455422c9c0d446d477f89e3"
+  },
+  {
+    "email": "c.ronaldo@gmail.com",
+    "fullname": "Cristiano Ronaldo",
+    "date_of_birth": "",
+    "phone_number": "",
+    "address": "",
+    "password": "4a7e113e553d9147fb6ff3bfaa1ac71b21d401d7722c2a03e76dc86f807ba00a:c9b4478dccbb432fb8995d4bf021338f"
+  }
+]

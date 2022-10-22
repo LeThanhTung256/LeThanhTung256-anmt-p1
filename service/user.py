@@ -32,13 +32,13 @@ def updateUserInfo(userInfo):
       user["date_of_birth"] = userInfo["date_of_birth"]
       user["phone_number"] = userInfo["phone_number"]
       user["address"] = userInfo["address"]
-    
-    with open(constants.USER_DB_FILE, "w") as file:
-      json.dump(userList, file)
-      file.close()
-    return "Update successfull", None
 
-  return None, "Update unsuccessfull"
+      with open(constants.USER_DB_FILE, "w") as file:
+        json.dump(userList, file)
+        file.close()
+      return "Update user's infomation successfully", None
+
+  return None, "Update user's infomation unsuccessfully"
 
 # Change password
 def changePassword(form, user_email):

@@ -48,7 +48,7 @@ def register_page():
       result, error = register(values)
       # Nếu có lỗi thì thông báo
       if error != "":
-        pg.popup_error("Opps!", error, font=('Any 15'))
+        pg.popup_error("Opps!", error, font=('Any 20'))
       else:
         # Nếu thành công chuyển đến trang home
         register_window.hide()
