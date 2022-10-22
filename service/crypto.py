@@ -139,7 +139,7 @@ def encryptFile(form):
     file.write(output)
     file.close() 
 
-  res, err = "Crypt successfull", None
+  res, err = "Encrypt file successfully", None
   return res, err
 
 # Hàm giải mã một file bằng thuật toán AES
@@ -158,14 +158,14 @@ def decryptFile(form, userEmail):
 
   # Tách các thành phần trong data
   text = ("18120640-LeThanhTung" + userEmail).encode()
-  item = data.split(text)
-  if len(item) < 4:
+  items = data.split(text)
+  if len(items) < 4:
     return None, "You are not allowed to decrypt this file"
 
-  enyptedSessionKey = item[0]
-  nonce = item[1]
-  tag = item[2]
-  encryptedData = item[3]
+  enyptedSessionKey = items[0]
+  nonce = items[1]
+  tag = items[2]
+  encryptedData = items[3]
 
   # Giải mã session key
   sessionKey = decryptSessionKey(enyptedSessionKey, userEmail)
@@ -174,7 +174,7 @@ def decryptFile(form, userEmail):
   cipher = AES.new(sessionKey, AES.MODE_EAX, nonce)
 
   # Giải mã nội dung file
-  decryptedData = cipher.decrypt_and_verify(encryptedData, tag)
+  decryptedData = cipher.decdrypt_and_verify(encryptedData, tag)
 
   # Ghi nội dung vào file kết quả
   with open(outputFile, "wb") as file:

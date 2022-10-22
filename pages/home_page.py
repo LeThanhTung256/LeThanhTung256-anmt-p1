@@ -8,6 +8,8 @@ from layouts.layouts import homeLayout, userSettingsLayout, changePassLayout, en
 
 def create_home_page(user):
   home_window = pg.Window("HomePage", homeLayout).Finalize()
+  userName = userService.getUserInfo(user)["fullname"]
+  home_window["_USER_NAME_"].update("Welcome " + userName)
 
   def open_setting_window(user_email):
     user, err = userService.getUserByEmail(user_email)
@@ -16,7 +18,7 @@ def create_home_page(user):
       return
 
     home_window.hide()
-    setting_window = pg.Window("User setting", userSettingsLayout).Finalize()
+    setting_window = pg.Window("User settings", userSettingsLayout).Finalize()
     setting_window['_US_NAME_'].update(user["fullname"])
     setting_window['_US_DOB_'].update(user['date_of_birth'])
     setting_window['_US_PHONE_'].update(user['phone_number'])
@@ -35,14 +37,17 @@ def create_home_page(user):
           "phone_number": values["_US_PHONE_"],
           "address": values["_US_ADD_"],
         }
-        
-        result, err = userService.updateUserInfo(user)
-        if err != None:
-          pg.popup_error(err)
-          break
 
-        pg.popup_ok(result)
-        break
+        if user["fullname"] == "":
+          pg.popup_error("Full name must not be empty")
+        else:
+          result, err = userService.updateUserInfo(user)
+          if err != None:
+            pg.popup_error(err, font = "Any 20")
+            break
+
+          pg.popup_ok(result, font = "Any 20")
+          break
     setting_window.close()
     home_window.un_hide()
     return
@@ -140,7 +145,7 @@ def create_home_page(user):
           }
 
           res, err = cryptoService.encryptFile(form)
-          pg.popup_ok(res)
+          pg.popup_ok(res, font="Any 20")
           break
 
     encrypt_window.close()
@@ -188,10 +193,10 @@ def create_home_page(user):
 
           res, err = cryptoService.decryptFile(form, user)
           if err == None:
-            pg.popup_ok(res)
+            pg.popup_ok(res, font="Any 20")
             break
           else:
-            pg.popup_error(err)
+            pg.popup_error(err, font="Any 20")
 
     decrypt_window.close()
     home_window.un_hide()
@@ -214,4 +219,3 @@ def create_home_page(user):
     if event == "Decrypt file":
       open_decrypt_window(user)
     
-
