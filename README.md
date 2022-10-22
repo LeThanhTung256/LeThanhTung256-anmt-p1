@@ -1,2 +1,2 @@
----- run code ----
+---- run code:
           python main.py
